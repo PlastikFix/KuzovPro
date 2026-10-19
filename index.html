@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KUZOV PRO — управление кузовным ремонтом</title>
+<style>
+:root{--bg:#0b1018;--panel:#121a26;--panel2:#172232;--line:#263449;--text:#edf3fb;--muted:#91a1b7;--accent:#ff7043;--accent2:#ff956f;--green:#55d6a1;--yellow:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--accent);color:#1a1110;font-weight:750}button:hover{filter:brightness(1.08)}button.secondary{background:#26364b;color:var(--text);border:1px solid #34465e}button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}button.danger{background:#492b31;color:#ffb9c0;border:1px solid #78414b}
+input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px solid #2a3a50;border-radius:9px;padding:10px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--accent)}label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}h1,h2,h3,p{margin-top:0}h1{font-size:25px;letter-spacing:-.7px;margin-bottom:4px}h2{font-size:17px;margin-bottom:14px}h3{font-size:14px}.muted{color:var(--muted)}.small{font-size:12px}.app{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}.sidebar{border-right:1px solid var(--line);padding:24px 15px;background:#0e1520;display:flex;flex-direction:column;gap:24px}.brand{display:flex;align-items:center;gap:10px;padding:0 8px}.logo{background:var(--accent);color:#1c1310;width:35px;height:35px;display:grid;place-items:center;border-radius:10px;font-weight:950;font-size:18px}.brand strong{letter-spacing:1.5px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1px}.nav{display:grid;gap:6px}.nav button{background:transparent;color:var(--muted);text-align:left;font-weight:600;border:1px solid transparent;padding:11px 12px}.nav button.active,.nav button:hover{background:#1a2636;color:var(--text);border-color:#2c3b50}.nav .ico{display:inline-block;width:25px;color:var(--accent)}.side-bottom{margin-top:auto;border:1px solid var(--line);border-radius:13px;padding:14px;background:#121b28}.main{min-width:0;padding:28px clamp(16px,3vw,38px) 45px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.eyebrow{color:var(--accent2);font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;min-width:0}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:27px;font-weight:800;letter-spacing:-.8px;margin:7px 0}.stat-note{font-size:11px;color:var(--green)}.two{grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr)}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-head h2{margin:0}.jobs{display:grid;gap:9px}.job{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px;border:1px solid var(--line);border-radius:11px;background:#101824}.job-title{font-weight:750}.job-meta{color:var(--muted);font-size:12px;margin-top:3px}.job-right{text-align:right}.price{font-weight:800;font-size:16px}.pill{display:inline-flex;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:800;background:#28384b;color:#c6d5e8}.pill.ready{background:#173a32;color:#83f0c3}.pill.paint{background:#4b3325;color:#ffc38f}.pill.wait{background:#3b344d;color:#d3bfff}.empty{border:1px dashed #34445a;border-radius:12px;padding:25px;text-align:center;color:var(--muted)}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field.full{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.page{display:none}.page.active{display:block}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}.tabs button{background:#172334;border:1px solid var(--line);color:var(--muted)}.tabs button.active{background:var(--accent);color:#20130f;border-color:var(--accent)}.upload{border:1px dashed #455a74;background:#0e1622;border-radius:12px;padding:20px;text-align:center}.upload input{border:0;background:transparent;max-width:260px}.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;margin-top:12px}.photo{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3;background:#0a0f17}.photo img{width:100%;height:100%;object-fit:cover}.photo button{position:absolute;top:5px;right:5px;padding:4px 7px;border-radius:6px}.estimate-lines{width:100%;border-collapse:collapse;margin-top:8px}.estimate-lines th,.estimate-lines td{padding:10px 7px;border-bottom:1px solid var(--line);text-align:left}.estimate-lines th{color:var(--muted);font-size:11px;font-weight:600}.estimate-lines td:last-child,.estimate-lines th:last-child{text-align:right}.estimate-lines input{min-width:75px;padding:7px}.total-row{display:flex;align-items:center;justify-content:space-between;font-size:17px;font-weight:850;padding-top:14px}.notice{border:1px solid #5a492b;background:#2b2519;color:#ffe0a1;padding:12px;border-radius:10px;font-size:12px}.success{color:var(--green)}.settings-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:14px 0;border-bottom:1px solid var(--line)}.settings-row:last-child{border-bottom:0}.settings-row input{max-width:150px}.toast{position:fixed;bottom:20px;right:20px;background:#173a32;border:1px solid #2f735e;color:#b9ffe4;padding:12px 16px;border-radius:10px;display:none;z-index:9}.footer{color:#617189;font-size:11px;margin-top:22px}.search{max-width:290px}.split{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:12px;gap:12px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:3px 4px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px 10px}.nav .ico{width:20px}.side-bottom{display:none}.main{padding:20px 14px 35px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%}}
+@media(max-width:520px){h1{font-size:22px}.card{padding:14px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.stats{gap:9px}.stat-value{font-size:23px}.job{grid-template-columns:1fr}.job-right{text-align:left;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.estimate-lines th:nth-child(2),.estimate-lines td:nth-child(2){display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">K</div><div><strong>KUZOV PRO</strong><small>BODY SHOP WORKSPACE</small></div></div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard"><span class="ico">▦</span> Обзор</button>
+    <button data-page="jobs"><span class="ico">▤</span> Заказы</button>
+    <button data-page="estimate"><span class="ico">⌁</span> Оценка ремонта</button>
+    <button data-page="prices"><span class="ico">₽</span> Прайс и рынок</button>
+    <button data-page="settings"><span class="ico">⚙</span> Настройки</button>
+  </nav>
+  <div class="side-bottom"><div class="eyebrow">Рабочее пространство</div><p style="margin:8px 0 4px;font-weight:750">Моя мастерская</p><div class="muted small">Локальный прототип · данные хранятся в браузере</div></div>
+</aside>
+<main class="main">
+  <div class="topbar"><div><div class="eyebrow" id="pageEyebrow">Панель управления</div><h1 id="pageTitle">Обзор мастерской</h1><div class="muted" id="pageSubtitle">Заказы, оценки и финансовая сводка в одном месте.</div></div><div class="top-actions"><button class="secondary" id="exportBtn">Экспорт заказов CSV</button><button id="newEstimateBtn">＋ Новая оценка</button></div></div>
+
+  <section class="page active" id="page-dashboard">
+    <div class="grid stats">
+      <div class="card"><div class="stat-label">Активные заказы</div><div class="stat-value" id="statActive">0</div><div class="stat-note">В работе сейчас</div></div>
+      <div class="card"><div class="stat-label">Оценки на согласовании</div><div class="stat-value" id="statQuotes">0</div><div class="stat-note">Предварительные сметы</div></div>
+      <div class="card"><div class="stat-label">Плановая выручка</div><div class="stat-value" id="statRevenue">0 ₽</div><div class="stat-note">По сохранённым заказам</div></div>
+      <div class="card"><div class="stat-label">Заказов всего</div><div class="stat-value" id="statAll">0</div><div class="stat-note">В локальной базе</div></div>
+    </div>
+    <div class="grid two">
+      <div class="card"><div class="section-head"><h2>Последние заказы</h2><button class="ghost" data-goto="jobs">Все заказы →</button></div><div class="jobs" id="recentJobs"></div></div>
+      <div class="card"><h2>Быстрые действия</h2><div class="jobs">
+        <button class="secondary" data-goto="estimate" style="text-align:left">＋ Создать оценку по фото</button>
+        <button class="secondary" data-goto="jobs" style="text-align:left">▤ Открыть базу заказов</button>
+        <button class="secondary" data-goto="prices" style="text-align:left">₽ Настроить цены работ</button>
+      </div><div class="notice" style="margin-top:16px">ИИ-анализ фото подключается отдельным серверным модулем. В этой версии доступны загрузка фото, ручная оценка, расчёт сметы и сохранение заказов.</div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-jobs">
+    <div class="card"><div class="section-head"><h2>База заказов</h2><input class="search" id="jobSearch" placeholder="Поиск по клиенту, авто, телефону…"></div><div class="jobs" id="allJobs"></div></div>
+  </section>
+
+  <section class="page" id="page-estimate">
+    <div class="tabs"><button class="active" data-tab="details">1. Автомобиль и клиент</button><button data-tab="damage">2. Фото и повреждения</button><button data-tab="quote">3. Смета</button></div>
+    <div class="card">
+      <div class="estimate-tab" id="tab-details">
+        <h2>Данные заказ-наряда</h2>
+        <div class="form-grid">
+          <div class="field"><label>Клиент</label><input id="client" placeholder="Имя клиента"></div>
+          <div class="field"><label>Телефон</label><input id="phone" placeholder="+7…"></div>
+          <div class="field"><label>Марка и модель</label><input id="car" placeholder="Например, Kia Rio"></div>
+          <div class="field"><label>Год выпуска</label><input id="year" type="number" placeholder="2018"></div>
+          <div class="field"><label>Госномер / VIN (необязательно)</label><input id="vin" placeholder="А000АА / VIN"></div>
+          <div class="field"><label>Статус заказа</label><select id="status"><option>Оценка</option><option>Ожидание согласования</option><option>Ожидание запчастей</option><option>В ремонте</option><option>На покраске</option><option>Готово</option><option>Выдано</option></select></div>
+          <div class="field full"><label>Комментарий мастера</label><textarea id="notes" rows="2" placeholder="Что сообщил клиент, ограничения, дополнительные замечания…"></textarea></div>
+        </div><div class="actions"><button data-tab="damage">Далее: фото и повреждения →</button></div>
+      </div>
+      <div class="estimate-tab" id="tab-damage" style="display:none">
+        <h2>Фотографии и первичная диагностика</h2>
+        <div class="upload"><div style="font-size:25px">▧</div><strong>Добавь фото повреждений</strong><p class="muted small">Общий план + крупные фото под разными углами. Файлы остаются в текущей сессии браузера.</p><input id="photos" type="file" accept="image/*" multiple><div class="photo-grid" id="photoGrid"></div></div>
+        <div class="form-grid" style="margin-top:17px">
+          <div class="field"><label>Повреждённый элемент</label><select id="element"><option>Переднее крыло</option><option>Заднее крыло</option><option>Передняя дверь</option><option>Задняя дверь</option><option>Капот</option><option>Крышка багажника</option><option>Бампер</option><option>Крыша</option><option>Порог</option><option>Несколько элементов</option></select></div>
+          <div class="field"><label>Тип повреждения</label><select id="damageType"><option>Царапина / потёртость</option><option>Вмятина без повреждения ЛКП</option><option>Вмятина с повреждением ЛКП</option><option>Залом / сложная деформация</option><option>Трещина пластика</option><option>Сквозная коррозия</option><option>Замена элемента</option></select></div>
+          <div class="field"><label>Сложность</label><select id="severity"><option value="1">Небольшая</option><option value="1.35">Средняя</option><option value="1.8">Сложная</option><option value="2.5">Очень сложная / требуется осмотр</option></select></div>
+          <div class="field"><label>Окраска</label><select id="paint"><option value="1">Полная окраска элемента</option><option value="0.55">Локальный ремонт / переход</option><option value="0">Без окраски</option></select></div>
+        </div>
+        <div class="notice" style="margin-top:15px">Предварительная оценка не выявляет скрытые повреждения и не заменяет осмотр. Реальный компьютерный анализ изображений появится после подключения AI API на сервере.</div>
+        <div class="actions"><button id="suggestBtn">Сформировать черновик сметы</button><button class="secondary" data-tab="quote">Перейти к смете →</button></div>
+      </div>
+      <div class="estimate-tab" id="tab-quote" style="display:none">
+        <div class="section-head"><div><h2>Смета ремонта</h2><div class="muted small">Редактируй работы и цены перед сохранением.</div></div><button class="secondary" id="addLine">＋ Добавить работу</button></div>
+        <div style="overflow-x:auto"><table class="estimate-lines"><thead><tr><th>Работа</th><th>Кол-во</th><th>Цена за ед.</th><th>Сумма</th><th></th></tr></thead><tbody id="linesBody"></tbody></table></div>
+        <div class="form-grid" style="margin-top:16px">
+          <div class="field"><label>Материалы, ₽</label><input type="number" id="materials" value="0" min="0"></div>
+          <div class="field"><label>Дополнительные расходы, ₽</label><input type="number" id="extras" value="0" min="0"></div>
+          <div class="field"><label>Скидка, ₽</label><input type="number" id="discount" value="0" min="0"></div>
+          <div class="field"><label>Рыночная корректировка</label><select id="marketAdj"><option value="0">Без корректировки</option><option value="-10">−10% к работам</option><option value="10">+10% к работам</option><option value="20">+20% к работам</option><option value="30">+30% к работам</option></select></div>
+        </div>
+        <div class="total-row"><span>Итого по смете</span><span id="total">0 ₽</span></div>
+        <div class="muted small" id="estimateMeta" style="margin-top:4px"></div>
+        <div class="actions"><button id="saveJob">Сохранить заказ</button><button class="secondary" id="printQuote">Печать / сохранить PDF</button><button class="ghost" id="clearEstimate">Очистить форму</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-prices">
+    <div class="card"><div class="section-head"><div><h2>Прайс работ</h2><div class="muted small">Базовые ориентиры для прототипа. Замени на цены своего региона и мастерской.</div></div><button id="resetPrices" class="ghost">Сбросить пример</button></div><div class="notice">Цены ниже — демонстрационные значения, не проверенные текущие среднерыночные тарифы. Используй их только как стартовые и отредактируй под свою практику.</div><div id="priceList" style="margin-top:12px"></div><div class="actions"><button id="savePrices">Сохранить прайс</button></div></div>
+  </section>
+
+  <section class="page" id="page-settings">
+    <div class="card"><h2>Настройки мастерской</h2><div class="form-grid">
+      <div class="field"><label>Название мастерской</label><input id="shopName" value="Моя мастерская"></div>
+      <div class="field"><label>Валюта</label><select id="currency"><option value="₽">Российский рубль (₽)</option></select></div>
+      <div class="field"><label>Телефон мастерской</label><input id="shopPhone" placeholder="+7…"></div>
+      <div class="field"><label>Город / регион для рыночных ориентиров</label><input id="region" placeholder="Например, Нижний Новгород"></div>
+    </div><div class="actions"><button id="saveSettings">Сохранить настройки</button></div><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><div class="settings-row"><div><strong>Экспорт данных</strong><div class="muted small">Скачать список заказов в CSV для резервной копии.</div></div><button class="secondary" id="exportBtn2">Экспорт CSV</button></div><div class="settings-row"><div><strong>Очистить локальную базу</strong><div class="muted small">Удалит сохранённые в этом браузере заказы и настройки.</div></div><button class="danger" id="wipeData">Очистить данные</button></div><p class="footer">Прототип работает в одном браузере и на одном устройстве. Для полноценной эксплуатации нужны сервер, аккаунт, облачная БД, резервные копии и авторизация.</p></div>
+  </section>
+  <div class="footer">KUZOV PRO · прототип рабочей системы · данные хранятся локально в этом браузере</div>
+</main>
+</div><div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const defaultPrices=[
+ {name:"Осмотр и дефектовка",price:1500},{name:"Рихтовка небольшая",price:2500},{name:"Рихтовка средняя",price:4500},{name:"Рихтовка сложная",price:8000},
+ {name:"Подготовка элемента к окраске",price:2500},{name:"Окраска одного элемента",price:7000},{name:"Локальный ремонт / переход",price:4500},
+ {name:"Снятие / установка элемента",price:1500},{name:"Ремонт пластикового бампера",price:3500},{name:"Удаление коррозии",price:3000},
+ {name:"PDR — удаление вмятины",price:3000},{name:"Замена элемента",price:5000}
+];
+const defaultLines=[{name:"Осмотр и дефектовка",qty:1,price:1500}];
+let jobs=load("kp_jobs",[]), prices=load("kp_prices",defaultPrices), settings=load("kp_settings",{shopName:"Моя мастерская",shopPhone:"",region:"",currency:"₽"}), lines=[], photoUrls=[];
+function load(k,f){try{let v=localStorage.getItem(k);return v?JSON.parse(v):structuredClone(f)}catch(e){return structuredClone(f)}}
+function persist(){localStorage.setItem("kp_jobs",JSON.stringify(jobs));localStorage.setItem("kp_prices",JSON.stringify(prices));localStorage.setItem("kp_settings",JSON.stringify(settings))}
+function money(n){return (Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:0})+" ₽"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function toast(s){$("toast").textContent=s;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2600)}
+const pageInfo={dashboard:["Панель управления","Обзор мастерской","Заказы, оценки и финансовая сводка в одном месте."],jobs:["Рабочая база","Заказы","История автомобилей, клиентов и расчётов."],estimate:["Новый заказ","Оценка ремонта","Фото, повреждения и расчёт предварительной стоимости."],prices:["Расценки мастерской","Прайс и рынок","Редактируемые ориентиры стоимости работ."],settings:["Конфигурация","Настройки","Параметры мастерской и управление локальными данными."]};
+function goto(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$("page-"+p).classList.add("active");document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===p));$("pageEyebrow").textContent=pageInfo[p][0];$("pageTitle").textContent=pageInfo[p][1];$("pageSubtitle").textContent=pageInfo[p][2];if(p==="dashboard")renderDashboard();if(p==="jobs")renderJobs();if(p==="prices")renderPrices()}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>goto(b.dataset.page)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>goto(b.dataset.goto)));
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function showTab(t){document.querySelectorAll(".estimate-tab").forEach(x=>x.style.display="none");$("tab-"+t).style.display="block";document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x.dataset.tab===t))}
+$("newEstimateBtn").onclick=()=>{clearForm();goto("estimate");showTab("details")};
+function statusClass(s){if(s==="Готово"||s==="Выдано")return"ready";if(s==="На покраске"||s==="В ремонте")return"paint";if(s==="Ожидание согласования"||s==="Ожидание запчастей")return"wait";return""}
+function jobCard(j){return `<div class="job"><div><div class="job-title">${esc(j.car||"Автомобиль не указан")} <span class="pill ${statusClass(j.status)}">${esc(j.status||"Оценка")}</span></div><div class="job-meta">${esc(j.client||"Без имени")} · ${esc(j.phone||"телефон не указан")} · ${esc(j.date||"")}</div><div class="job-meta">${esc(j.element||"")} · ${esc(j.damageType||"")}</div></div><div class="job-right"><div class="price">${money(j.total)}</div><button class="ghost" onclick="openJob('${j.id}')">Открыть</button><button class="ghost" onclick="deleteJob('${j.id}')">Удалить</button></div></div>`}
+function renderDashboard(){let active=jobs.filter(j=>!["Готово","Выдано"].includes(j.status)).length;let quotes=jobs.filter(j=>["Оценка","Ожидание согласования"].includes(j.status)).length;let rev=jobs.reduce((a,j)=>a+(Number(j.total)||0),0);$("statActive").textContent=active;$("statQuotes").textContent=quotes;$("statRevenue").textContent=money(rev);$("statAll").textContent=jobs.length;$("recentJobs").innerHTML=jobs.length?jobs.slice().reverse().slice(0,5).map(jobCard).join(""):'<div class="empty">Заказов пока нет.<br>Создай первую оценку ремонта.</div>'}
+function renderJobs(){let q=($("jobSearch").value||"").toLowerCase();let list=jobs.filter(j=>[j.client,j.car,j.phone,j.vin].join(" ").toLowerCase().includes(q));$("allJobs").innerHTML=list.length?list.slice().reverse().map(jobCard).join(""):'<div class="empty">Ничего не найдено. Создай новую оценку.</div>'}
+$("jobSearch").addEventListener("input",renderJobs);
+window.deleteJob=id=>{if(confirm("Удалить этот заказ?")){jobs=jobs.filter(j=>j.id!==id);persist();renderJobs();renderDashboard();toast("Заказ удалён")}};
+window.openJob=id=>{let j=jobs.find(x=>x.id===id);if(!j)return;clearForm();$("client").value=j.client||"";$("phone").value=j.phone||"";$("car").value=j.car||"";$("year").value=j.year||"";$("vin").value=j.vin||"";$("status").value=j.status||"Оценка";$("notes").value=j.notes||"";$("element").value=j.element||"Переднее крыло";$("damageType").value=j.damageType||"Царапина / потёртость";lines=structuredClone(j.lines||[]);$("materials").value=j.materials||0;$("extras").value=j.extras||0;$("discount").value=j.discount||0;$("marketAdj").value=String(j.marketAdj||0);renderLines();calcTotal();goto("estimate");showTab("quote");toast("Заказ загружен для редактирования — сохранение создаст новую запись")};
+function clearForm(){["client","phone","car","year","vin","notes"].forEach(id=>$(id).value="");$("status").value="Оценка";$("element").selectedIndex=0;$("damageType").selectedIndex=0;$("severity").value="1";$("paint").value="1";$("materials").value=0;$("extras").value=0;$("discount").value=0;$("marketAdj").value="0";lines=structuredClone(defaultLines);photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];$("photos").value="";$("photoGrid").innerHTML="";renderLines();calcTotal()}
+$("photos").addEventListener("change",e=>{photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];$("photoGrid").innerHTML="";[...e.target.files].slice(0,12).forEach(f=>{let u=URL.createObjectURL(f);photoUrls.push(u);let d=document.createElement("div");d.className="photo";let im=document.createElement("img");im.src=u;im.alt=f.name;d.appendChild(im);$("photoGrid").appendChild(d)})});
+function findPrice(name){let x=prices.find(p=>p.name===name);return x?Number(x.price):0}
+function suggest(){let type=$("damageType").value, sev=Number($("severity").value), paint=Number($("paint").value), el=$("element").value;let work=[];work.push({name:"Осмотр и дефектовка",qty:1,price:findPrice("Осмотр и дефектовка")||1500});
+if(type.includes("без повреждения ЛКП"))work.push({name:"PDR — удаление вмятины",qty:1,price:Math.round((findPrice("PDR — удаление вмятины")||3000)*sev)});
+else if(type.includes("Царапина"))work.push({name:"Подготовка элемента к окраске",qty:1,price:Math.round((findPrice("Подготовка элемента к окраске")||2500)*sev)});
+else if(type.includes("пластика"))work.push({name:"Ремонт пластикового бампера",qty:1,price:Math.round((findPrice("Ремонт пластикового бампера")||3500)*sev)});
+else if(type.includes("коррозия"))work.push({name:"Удаление коррозии",qty:1,price:Math.round((findPrice("Удаление коррозии")||3000)*sev)});
+else if(type.includes("Замена"))work.push({name:"Замена элемента",qty:1,price:Math.round((findPrice("Замена элемента")||5000)*sev)});
+else work.push({name:sev>1.5?"Рихтовка сложная":sev>1.1?"Рихтовка средняя":"Рихтовка небольшая",qty:1,price:Math.round((findPrice(sev>1.5?"Рихтовка сложная":sev>1.1?"Рихтовка средняя":"Рихтовка небольшая")||2500)*sev)});
+if(paint>0)work.push({name:paint<1?"Локальный ремонт / переход":"Окраска одного элемента",qty:1,price:Math.round((findPrice(paint<1?"Локальный ремонт / переход":"Окраска одного элемента")||7000)*paint*sev)});
+if(el==="Несколько элементов"){work.forEach(x=>x.qty=2)}
+lines=work;$("materials").value=paint?Math.round(1800*sev):0;renderLines();calcTotal();showTab("quote");toast("Черновик сметы сформирован — проверь цены и состав работ")}
+$("suggestBtn").onclick=suggest;
+function renderLines(){$("linesBody").innerHTML=lines.map((l,i)=>`<tr><td><input aria-label="Название работы" value="${esc(l.name)}" onchange="editLine(${i},'name',this.value)"></td><td><input type="number" min="0" step="1" value="${l.qty}" onchange="editLine(${i},'qty',this.value)"></td><td><input type="number" min="0" step="100" value="${l.price}" onchange="editLine(${i},'price',this.value)"></td><td>${money(Number(l.qty)*Number(l.price))}</td><td><button class="ghost" style="padding:5px 8px" onclick="removeLine(${i})">×</button></td></tr>`).join("");calcTotal()}
+window.editLine=(i,k,v)=>{lines[i][k]=k==="name"?v:Number(v)||0;renderLines()};
+window.removeLine=i=>{lines.splice(i,1);renderLines()};
+$("addLine").onclick=()=>{lines.push({name:"Новая работа",qty:1,price:0});renderLines()};
+function totalCalc(){let labor=lines.reduce((a,l)=>a+(Number(l.qty)||0)*(Number(l.price)||0),0);labor*=1+(Number($("marketAdj").value)||0)/100;return Math.max(0,Math.round(labor+(Number($("materials").value)||0)+(Number($("extras").value)||0)-(Number($("discount").value)||0)))}
+function calcTotal(){$("total").textContent=money(totalCalc());let raw=lines.reduce((a,l)=>a+(Number(l.qty)||0)*(Number(l.price)||0),0);$("estimateMeta").textContent=`Работы до корректировки: ${money(raw)} · Материалы и расходы учитываются отдельно.`}
+["materials","extras","discount","marketAdj"].forEach(id=>$(id).addEventListener("input",calcTotal));
+$("saveJob").onclick=()=>{if(!$("car").value.trim()&&!$("client").value.trim()){toast("Укажи хотя бы автомобиль или клиента");showTab("details");return}let j={id:Date.now().toString(),date:new Date().toLocaleDateString("ru-RU"),client:$("client").value,phone:$("phone").value,car:$("car").value,year:$("year").value,vin:$("vin").value,status:$("status").value,notes:$("notes").value,element:$("element").value,damageType:$("damageType").value,lines:structuredClone(lines),materials:Number($("materials").value)||0,extras:Number($("extras").value)||0,discount:Number($("discount").value)||0,marketAdj:Number($("marketAdj").value)||0,total:totalCalc()};jobs.push(j);persist();renderDashboard();toast("Заказ сохранён в браузере");goto("jobs")};
+$("printQuote").onclick=()=>window.print();
+function renderPrices(){$("priceList").innerHTML=prices.map((p,i)=>`<div class="settings-row"><div style="flex:1"><input value="${esc(p.name)}" aria-label="Название работы" onchange="editPrice(${i},'name',this.value)"></div><div style="display:flex;align-items:center;gap:8px;width:190px"><input type="number" min="0" step="100" value="${p.price}" aria-label="Цена работы" onchange="editPrice(${i},'price',this.value)"><span class="muted small">₽</span></div><button class="ghost" onclick="removePrice(${i})">×</button></div>`).join("")+`<div class="actions"><button class="secondary" id="addPrice">＋ Добавить расценку</button></div>`;$("addPrice").onclick=()=>{prices.push({name:"Новая работа",price:0});renderPrices()}}
+window.editPrice=(i,k,v)=>{prices[i][k]=k==="name"?v:Number(v)||0};window.removePrice=i=>{prices.splice(i,1);renderPrices()};
+$("savePrices").onclick=()=>{persist();toast("Прайс сохранён");};
+$("resetPrices").onclick=()=>{if(confirm("Вернуть демонстрационный прайс?")){prices=structuredClone(defaultPrices);persist();renderPrices()}};
+function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function exportCSV(){let headers=["Дата","Клиент","Телефон","Автомобиль","Год","VIN/номер","Статус","Элемент","Повреждение","Сумма","Комментарий"];let rows=jobs.map(j=>[j.date,j.client,j.phone,j.car,j.year,j.vin,j.status,j.element,j.damageType,j.total,j.notes]);let csv="\ufeff"+[headers,...rows].map(r=>r.map(csvCell).join(";")).join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="kuzov-pro-orders.csv";a.click();URL.revokeObjectURL(a.href)}
+$("exportBtn").onclick=$("exportBtn2").onclick=exportCSV;
+$("saveSettings").onclick=()=>{settings={shopName:$("shopName").value,shopPhone:$("shopPhone").value,region:$("region").value,currency:$("currency").value};persist();toast("Настройки сохранены")};
+$("wipeData").onclick=()=>{if(confirm("Точно удалить все заказы, прайс и настройки из этого браузера?")){jobs=[];prices=structuredClone(defaultPrices);settings={shopName:"Моя мастерская",shopPhone:"",region:"",currency:"₽"};persist();renderDashboard();renderJobs();renderPrices();toast("Локальные данные очищены")}};
+function initSettings(){$("shopName").value=settings.shopName||"";$("shopPhone").value=settings.shopPhone||"";$("region").value=settings.region||"";$("currency").value=settings.currency||"₽"}
+initSettings();renderDashboard();renderLines();renderPrices();
+window.addEventListener("beforeprint",()=>{document.body.dataset.printing="true"});
+</script>
+<style>
+@media print{body{background:white;color:#111}.sidebar,.topbar,.tabs,.actions,.notice,.footer,.nav{display:none!important}.app{display:block}.main{padding:0}.page{display:none!important}#page-estimate{display:block!important}#tab-quote{display:block!important}.card{background:white;border:0;color:#111;padding:0}.estimate-lines td,.estimate-lines th{border-color:#ddd;color:#111}input,select,textarea{background:white;color:#111;border:0;padding:0}.muted{color:#555}.total-row{border-top:1px solid #aaa}}
+</style>
+</body></html>
