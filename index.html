@@ -127,8 +127,8 @@ const defaultPrices=[
  {name:"PDR — удаление вмятины",price:3000},{name:"Замена элемента",price:5000}
 ];
 const defaultLines=[{name:"Осмотр и дефектовка",qty:1,price:1500}];
-const SUPABASE_URL="https://zkwriischuidkqixxnnc.supabase.co/rest/v1/";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_tFKeBsrXgzb44M0F1eQ09g_RPLmWZEa";
+const SUPABASE_URL = "https://zkwriischuidkqixxnnc.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_tFKeBsrXgzb44M0F1eQ09g_RPLmWZEa";
 const sbReady=window.supabase && SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.startsWith("sb_");
 const sb=sbReady?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY):null;
 let jobs=[], prices=load("kp_prices",defaultPrices), settings=load("kp_settings",{shopName:"Моя мастерская",shopPhone:"",region:"Нижегородская область",currency:"₽",workers:["Артём (владелец)","Работник 1","Работник 2"]}), lines=[], photoUrls=[]; let sessionUser=null;
