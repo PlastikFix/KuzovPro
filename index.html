@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KUZOV PRO — управление кузовным ремонтом</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0b1018;--panel:#121a26;--panel2:#172232;--line:#263449;--text:#edf3fb;--muted:#91a1b7;--accent:#ff7043;--accent2:#ff956f;--green:#55d6a1;--yellow:#ffd166}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
@@ -13,7 +14,15 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
 </style>
 </head>
 <body>
-<div class="app">
+<div id="loginGate" style="position:fixed;inset:0;background:#080d14;z-index:100;display:grid;place-items:center;padding:20px">
+  <div class="card" style="width:min(420px,100%);padding:26px"><div class="brand" style="padding:0;margin-bottom:22px"><div class="logo">K</div><div><strong>KUZOV PRO</strong><small>ВХОД В МАСТЕРСКУЮ</small></div></div>
+  <div class="notice" style="margin-bottom:14px">Вход защищён Supabase Auth. Пароли не отображаются в приложении и не хранятся в его коде. Сначала настрой адрес проекта и publishable key.</div>
+  <div class="field"><label>Email пользователя</label><input id="loginEmail" type="email" autocomplete="username" placeholder="Твой email"></div>
+  <div class="field" style="margin-top:12px"><label>Пароль</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Введите пароль"></div>
+  <button id="loginBtn" style="width:100%;margin-top:16px">Войти</button><div id="loginError" class="small" style="color:#ffb9c0;margin-top:10px"></div>
+  <p class="muted small" style="margin:14px 0 0">Учётные записи создаются владельцем в Supabase → Authentication → Users.</p></div>
+</div>
+<div class="app" id="mainApp" style="visibility:hidden">
 <aside class="sidebar">
   <div class="brand"><div class="logo">K</div><div><strong>KUZOV PRO</strong><small>BODY SHOP WORKSPACE</small></div></div>
   <nav class="nav">
@@ -23,10 +32,10 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
     <button data-page="prices"><span class="ico">₽</span> Прайс и рынок</button>
     <button data-page="settings"><span class="ico">⚙</span> Настройки</button>
   </nav>
-  <div class="side-bottom"><div class="eyebrow">Рабочее пространство</div><p style="margin:8px 0 4px;font-weight:750">Моя мастерская</p><div class="muted small">Локальный прототип · данные хранятся в браузере</div></div>
+  <div class="side-bottom"><div class="eyebrow">Рабочее пространство</div><p style="margin:8px 0 4px;font-weight:750">Моя мастерская</p><div class="muted small">Облачная база · Supabase</div></div>
 </aside>
 <main class="main">
-  <div class="topbar"><div><div class="eyebrow" id="pageEyebrow">Панель управления</div><h1 id="pageTitle">Обзор мастерской</h1><div class="muted" id="pageSubtitle">Заказы, оценки и финансовая сводка в одном месте.</div></div><div class="top-actions"><button class="secondary" id="exportBtn">Экспорт заказов CSV</button><button id="newEstimateBtn">＋ Новая оценка</button></div></div>
+  <div class="topbar"><div><div class="eyebrow" id="pageEyebrow">Панель управления</div><h1 id="pageTitle">Обзор мастерской</h1><div class="muted" id="pageSubtitle">Заказы, оценки и финансовая сводка в одном месте.</div></div><div class="top-actions"><span class="pill" id="currentUserBadge">Владелец</span><button class="secondary" id="logoutBtn">Выйти</button><button class="secondary" id="exportBtn">Экспорт заказов CSV</button><button id="newEstimateBtn">＋ Новая оценка</button></div></div>
 
   <section class="page active" id="page-dashboard">
     <div class="grid stats">
@@ -41,12 +50,12 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
         <button class="secondary" data-goto="estimate" style="text-align:left">＋ Создать оценку по фото</button>
         <button class="secondary" data-goto="jobs" style="text-align:left">▤ Открыть базу заказов</button>
         <button class="secondary" data-goto="prices" style="text-align:left">₽ Настроить цены работ</button>
-      </div><div class="notice" style="margin-top:16px">ИИ-анализ фото подключается отдельным серверным модулем. В этой версии доступны загрузка фото, ручная оценка, расчёт сметы и сохранение заказов.</div></div>
+      </div><div class="notice" style="margin-top:16px">ИИ-помощник анализирует фото через защищённую серверную функцию. Для запуска нужно один раз добавить API-ключ модели в Supabase Secrets.</div></div>
     </div>
   </section>
 
   <section class="page" id="page-jobs">
-    <div class="card"><div class="section-head"><h2>База заказов</h2><input class="search" id="jobSearch" placeholder="Поиск по клиенту, авто, телефону…"></div><div class="jobs" id="allJobs"></div></div>
+    <div class="card"><div class="section-head"><h2>База заказов</h2><div class="split"><select id="jobMonth" style="width:auto"><option value="current">Текущий месяц</option><option value="all">Все заказы</option></select><input class="search" id="jobSearch" placeholder="Поиск по клиенту, авто, телефону…"></div></div><div id="monthSummary" class="notice" style="margin-bottom:12px"></div><div class="jobs" id="allJobs"></div></div>
   </section>
 
   <section class="page" id="page-estimate">
@@ -60,6 +69,7 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
           <div class="field"><label>Марка и модель</label><input id="car" placeholder="Например, Kia Rio"></div>
           <div class="field"><label>Год выпуска</label><input id="year" type="number" placeholder="2018"></div>
           <div class="field"><label>Госномер / VIN (необязательно)</label><input id="vin" placeholder="А000АА / VIN"></div>
+          <div class="field"><label>Ответственный работник</label><select id="worker"><option>Артём (владелец)</option><option>Работник 1</option><option>Работник 2</option></select></div>
           <div class="field"><label>Статус заказа</label><select id="status"><option>Оценка</option><option>Ожидание согласования</option><option>Ожидание запчастей</option><option>В ремонте</option><option>На покраске</option><option>Готово</option><option>Выдано</option></select></div>
           <div class="field full"><label>Комментарий мастера</label><textarea id="notes" rows="2" placeholder="Что сообщил клиент, ограничения, дополнительные замечания…"></textarea></div>
         </div><div class="actions"><button data-tab="damage">Далее: фото и повреждения →</button></div>
@@ -73,8 +83,8 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
           <div class="field"><label>Сложность</label><select id="severity"><option value="1">Небольшая</option><option value="1.35">Средняя</option><option value="1.8">Сложная</option><option value="2.5">Очень сложная / требуется осмотр</option></select></div>
           <div class="field"><label>Окраска</label><select id="paint"><option value="1">Полная окраска элемента</option><option value="0.55">Локальный ремонт / переход</option><option value="0">Без окраски</option></select></div>
         </div>
-        <div class="notice" style="margin-top:15px">Предварительная оценка не выявляет скрытые повреждения и не заменяет осмотр. Реальный компьютерный анализ изображений появится после подключения AI API на сервере.</div>
-        <div class="actions"><button id="suggestBtn">Сформировать черновик сметы</button><button class="secondary" data-tab="quote">Перейти к смете →</button></div>
+        <div class="notice" style="margin-top:15px">ИИ-оценка предварительная: фото не выявляет скрытые повреждения и не заменяет осмотр мастера.</div>
+        <div class="actions"><button id="suggestBtn">Сформировать черновик сметы</button><button class="secondary" id="aiHelpBtn">✦ ИИ-помощник</button><button class="secondary" data-tab="quote">Перейти к смете →</button></div>
       </div>
       <div class="estimate-tab" id="tab-quote" style="display:none">
         <div class="section-head"><div><h2>Смета ремонта</h2><div class="muted small">Редактируй работы и цены перед сохранением.</div></div><button class="secondary" id="addLine">＋ Добавить работу</button></div>
@@ -102,6 +112,7 @@ input,select,textarea{width:100%;background:#0d1420;color:var(--text);border:1px
       <div class="field"><label>Валюта</label><select id="currency"><option value="₽">Российский рубль (₽)</option></select></div>
       <div class="field"><label>Телефон мастерской</label><input id="shopPhone" placeholder="+7…"></div>
       <div class="field"><label>Город / регион для рыночных ориентиров</label><input id="region" placeholder="Например, Нижний Новгород"></div>
+      <div class="field full"><label>Список работников (через запятую)</label><input id="workersList" placeholder="Артём (владелец), Работник 1, Работник 2"></div>
     </div><div class="actions"><button id="saveSettings">Сохранить настройки</button></div><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><div class="settings-row"><div><strong>Экспорт данных</strong><div class="muted small">Скачать список заказов в CSV для резервной копии.</div></div><button class="secondary" id="exportBtn2">Экспорт CSV</button></div><div class="settings-row"><div><strong>Очистить локальную базу</strong><div class="muted small">Удалит сохранённые в этом браузере заказы и настройки.</div></div><button class="danger" id="wipeData">Очистить данные</button></div><p class="footer">Прототип работает в одном браузере и на одном устройстве. Для полноценной эксплуатации нужны сервер, аккаунт, облачная БД, резервные копии и авторизация.</p></div>
   </section>
   <div class="footer">KUZOV PRO · прототип рабочей системы · данные хранятся локально в этом браузере</div>
@@ -116,9 +127,15 @@ const defaultPrices=[
  {name:"PDR — удаление вмятины",price:3000},{name:"Замена элемента",price:5000}
 ];
 const defaultLines=[{name:"Осмотр и дефектовка",qty:1,price:1500}];
-let jobs=load("kp_jobs",[]), prices=load("kp_prices",defaultPrices), settings=load("kp_settings",{shopName:"Моя мастерская",shopPhone:"",region:"",currency:"₽"}), lines=[], photoUrls=[];
+const SUPABASE_URL="https://zkwriischuidkqixxnnc.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_tFKeBsrXgzb44M0F1eQ09g_RPLmWZEa";
+const sbReady=window.supabase && SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.startsWith("sb_");
+const sb=sbReady?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY):null;
+let jobs=[], prices=load("kp_prices",defaultPrices), settings=load("kp_settings",{shopName:"Моя мастерская",shopPhone:"",region:"Нижегородская область",currency:"₽",workers:["Артём (владелец)","Работник 1","Работник 2"]}), lines=[], photoUrls=[]; let sessionUser=null;
 function load(k,f){try{let v=localStorage.getItem(k);return v?JSON.parse(v):structuredClone(f)}catch(e){return structuredClone(f)}}
-function persist(){localStorage.setItem("kp_jobs",JSON.stringify(jobs));localStorage.setItem("kp_prices",JSON.stringify(prices));localStorage.setItem("kp_settings",JSON.stringify(settings))}
+function persist(){localStorage.setItem("kp_prices",JSON.stringify(prices));localStorage.setItem("kp_settings",JSON.stringify(settings))}
+async function syncOrders(){if(!sb)throw new Error("Сначала укажи Supabase URL и publishable key в index.html");const {data,error}=await sb.from("orders").select("id,created_at,status,worker_name,data,price,completed_at").order("created_at",{ascending:true});if(error)throw error;jobs=(data||[]).map(r=>({...((r.data&&typeof r.data==="object")?r.data:{}),id:r.id,createdAt:r.created_at,worker:r.worker_name||r.data?.worker||"Не назначен",status:r.status||r.data?.status||"Оценка",total:Number(r.price??r.data?.total??0),completedAt:r.completed_at}));renderDashboard();renderJobs()}
+async function saveCloudJob(j){const payload={client_name:j.client||"",phone:j.phone||"",car:j.car||"",description:j.notes||"",status:j.status||"Оценка",worker_name:j.worker||"",price:Number(j.total)||0,data:j,created_by:sessionUser?.id||null};const {data,error}=await sb.from("orders").insert(payload).select("id,created_at").single();if(error)throw error;j.id=data.id;j.createdAt=data.created_at;jobs.push(j)}
 function money(n){return (Number(n)||0).toLocaleString("ru-RU",{maximumFractionDigits:0})+" ₽"}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function toast(s){$("toast").textContent=s;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2600)}
@@ -130,13 +147,14 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()
 function showTab(t){document.querySelectorAll(".estimate-tab").forEach(x=>x.style.display="none");$("tab-"+t).style.display="block";document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x.dataset.tab===t))}
 $("newEstimateBtn").onclick=()=>{clearForm();goto("estimate");showTab("details")};
 function statusClass(s){if(s==="Готово"||s==="Выдано")return"ready";if(s==="На покраске"||s==="В ремонте")return"paint";if(s==="Ожидание согласования"||s==="Ожидание запчастей")return"wait";return""}
-function jobCard(j){return `<div class="job"><div><div class="job-title">${esc(j.car||"Автомобиль не указан")} <span class="pill ${statusClass(j.status)}">${esc(j.status||"Оценка")}</span></div><div class="job-meta">${esc(j.client||"Без имени")} · ${esc(j.phone||"телефон не указан")} · ${esc(j.date||"")}</div><div class="job-meta">${esc(j.element||"")} · ${esc(j.damageType||"")}</div></div><div class="job-right"><div class="price">${money(j.total)}</div><button class="ghost" onclick="openJob('${j.id}')">Открыть</button><button class="ghost" onclick="deleteJob('${j.id}')">Удалить</button></div></div>`}
+function jobCard(j){return `<div class="job"><div><div class="job-title">${esc(j.car||"Автомобиль не указан")} <span class="pill ${statusClass(j.status)}">${esc(j.status||"Оценка")}</span></div><div class="job-meta">${esc(j.client||"Без имени")} · ${esc(j.phone||"телефон не указан")} · ${esc(j.date||"")}</div><div class="job-meta">${esc(j.element||"")} · ${esc(j.damageType||"")}</div><div class="job-meta">Ответственный: ${esc(j.worker||"Не назначен")}</div></div><div class="job-right"><div class="price">${money(j.total)}</div><button class="ghost" onclick="openJob('${j.id}')">Открыть</button>${!["Готово","Выдано"].includes(j.status)?`<button class="secondary" onclick="completeJob('${j.id}')">Завершить</button>`:""}<button class="ghost" onclick="deleteJob('${j.id}')">Удалить</button></div></div>`}
 function renderDashboard(){let active=jobs.filter(j=>!["Готово","Выдано"].includes(j.status)).length;let quotes=jobs.filter(j=>["Оценка","Ожидание согласования"].includes(j.status)).length;let rev=jobs.reduce((a,j)=>a+(Number(j.total)||0),0);$("statActive").textContent=active;$("statQuotes").textContent=quotes;$("statRevenue").textContent=money(rev);$("statAll").textContent=jobs.length;$("recentJobs").innerHTML=jobs.length?jobs.slice().reverse().slice(0,5).map(jobCard).join(""):'<div class="empty">Заказов пока нет.<br>Создай первую оценку ремонта.</div>'}
-function renderJobs(){let q=($("jobSearch").value||"").toLowerCase();let list=jobs.filter(j=>[j.client,j.car,j.phone,j.vin].join(" ").toLowerCase().includes(q));$("allJobs").innerHTML=list.length?list.slice().reverse().map(jobCard).join(""):'<div class="empty">Ничего не найдено. Создай новую оценку.</div>'}
-$("jobSearch").addEventListener("input",renderJobs);
-window.deleteJob=id=>{if(confirm("Удалить этот заказ?")){jobs=jobs.filter(j=>j.id!==id);persist();renderJobs();renderDashboard();toast("Заказ удалён")}};
-window.openJob=id=>{let j=jobs.find(x=>x.id===id);if(!j)return;clearForm();$("client").value=j.client||"";$("phone").value=j.phone||"";$("car").value=j.car||"";$("year").value=j.year||"";$("vin").value=j.vin||"";$("status").value=j.status||"Оценка";$("notes").value=j.notes||"";$("element").value=j.element||"Переднее крыло";$("damageType").value=j.damageType||"Царапина / потёртость";lines=structuredClone(j.lines||[]);$("materials").value=j.materials||0;$("extras").value=j.extras||0;$("discount").value=j.discount||0;$("marketAdj").value=String(j.marketAdj||0);renderLines();calcTotal();goto("estimate");showTab("quote");toast("Заказ загружен для редактирования — сохранение создаст новую запись")};
-function clearForm(){["client","phone","car","year","vin","notes"].forEach(id=>$(id).value="");$("status").value="Оценка";$("element").selectedIndex=0;$("damageType").selectedIndex=0;$("severity").value="1";$("paint").value="1";$("materials").value=0;$("extras").value=0;$("discount").value=0;$("marketAdj").value="0";lines=structuredClone(defaultLines);photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];$("photos").value="";$("photoGrid").innerHTML="";renderLines();calcTotal()}
+function renderJobs(){let q=($("jobSearch").value||"").toLowerCase();let now=new Date(), month=String(now.getMonth()+1).padStart(2,"0"), year=String(now.getFullYear());let list=jobs.filter(j=>[j.client,j.car,j.phone,j.vin,j.worker].join(" ").toLowerCase().includes(q));if($("jobMonth").value!=="all")list=list.filter(j=>{let d=j.createdAt?new Date(j.createdAt):null;return d&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()});let done=list.filter(j=>["Готово","Выдано"].includes(j.status)).length;let total=list.reduce((a,j)=>a+(Number(j.total)||0),0);$("monthSummary").textContent=`За выбранный период: ${list.length} заказов · завершено ${done} · сумма смет ${money(total)}`;$("allJobs").innerHTML=list.length?list.slice().reverse().map(jobCard).join(""):'<div class="empty">За этот период заказов нет.</div>'}
+$("jobSearch").addEventListener("input",renderJobs);$("jobMonth").addEventListener("change",renderJobs);
+window.completeJob=async id=>{let j=jobs.find(x=>x.id===id);if(!j)return;j.status="Готово";j.completedAt=new Date().toISOString();try{const {error}=await sb.from("orders").update({status:j.status,completed_at:j.completedAt,data:j}).eq("id",id);if(error)throw error;renderJobs();renderDashboard();toast("Заказ завершён и синхронизирован")}catch(e){toast("Ошибка сохранения: "+e.message)}};
+window.deleteJob=async id=>{if(confirm("Удалить этот заказ?")){try{const {error}=await sb.from("orders").delete().eq("id",id);if(error)throw error;jobs=jobs.filter(j=>j.id!==id);renderJobs();renderDashboard();toast("Заказ удалён")}catch(e){toast("Ошибка удаления: "+e.message)}}};
+window.openJob=id=>{let j=jobs.find(x=>x.id===id);if(!j)return;clearForm();$("client").value=j.client||"";$("phone").value=j.phone||"";$("car").value=j.car||"";$("year").value=j.year||"";$("vin").value=j.vin||"";$("status").value=j.status||"Оценка";$("worker").value=j.worker||"Артём (владелец)";$("notes").value=j.notes||"";$("element").value=j.element||"Переднее крыло";$("damageType").value=j.damageType||"Царапина / потёртость";lines=structuredClone(j.lines||[]);$("materials").value=j.materials||0;$("extras").value=j.extras||0;$("discount").value=j.discount||0;$("marketAdj").value=String(j.marketAdj||0);renderLines();calcTotal();goto("estimate");showTab("quote");toast("Заказ загружен для редактирования — сохранение создаст новую запись")};
+function clearForm(){["client","phone","car","year","vin","notes"].forEach(id=>$(id).value="");$("status").value="Оценка";$("worker").value=sessionUser&&sessionUser.role==="worker"?sessionUser.name:"Артём (владелец)";$("element").selectedIndex=0;$("damageType").selectedIndex=0;$("severity").value="1";$("paint").value="1";$("materials").value=0;$("extras").value=0;$("discount").value=0;$("marketAdj").value="0";lines=structuredClone(defaultLines);photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];$("photos").value="";$("photoGrid").innerHTML="";renderLines();calcTotal()}
 $("photos").addEventListener("change",e=>{photoUrls.forEach(u=>URL.revokeObjectURL(u));photoUrls=[];$("photoGrid").innerHTML="";[...e.target.files].slice(0,12).forEach(f=>{let u=URL.createObjectURL(f);photoUrls.push(u);let d=document.createElement("div");d.className="photo";let im=document.createElement("img");im.src=u;im.alt=f.name;d.appendChild(im);$("photoGrid").appendChild(d)})});
 function findPrice(name){let x=prices.find(p=>p.name===name);return x?Number(x.price):0}
 function suggest(){let type=$("damageType").value, sev=Number($("severity").value), paint=Number($("paint").value), el=$("element").value;let work=[];work.push({name:"Осмотр и дефектовка",qty:1,price:findPrice("Осмотр и дефектовка")||1500});
@@ -150,6 +168,7 @@ if(paint>0)work.push({name:paint<1?"Локальный ремонт / перех
 if(el==="Несколько элементов"){work.forEach(x=>x.qty=2)}
 lines=work;$("materials").value=paint?Math.round(1800*sev):0;renderLines();calcTotal();showTab("quote");toast("Черновик сметы сформирован — проверь цены и состав работ")}
 $("suggestBtn").onclick=suggest;
+$("aiHelpBtn").onclick=async()=>{if(!sb){alert("Сначала вставь Supabase URL и publishable key в index.html.");return}const selected=[...$("photos").files].slice(0,4);if(!selected.length){alert("Сначала добавь фотографии повреждений.");return}const btn=$("aiHelpBtn");btn.disabled=true;btn.textContent="ИИ анализирует фото…";try{const images=await Promise.all(selected.map(f=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({name:f.name,mimeType:f.type,dataUrl:reader.result});reader.onerror=reject;reader.readAsDataURL(f)})));const {data,error}=await sb.functions.invoke("ai-assess",{body:{images,car:$("car").value,element:$("element").value,damageType:$("damageType").value,region:settings.region||"Нижегородская область"}});if(error)throw error;const result=data?.assessment||data;alert(typeof result==="string"?result:JSON.stringify(result,null,2));if(Array.isArray(data?.suggestedLines)){lines=data.suggestedLines.map(x=>({name:String(x.name||"Работа"),qty:Number(x.qty)||1,price:Number(x.price)||0}));renderLines();showTab("quote")}}catch(e){alert("ИИ не ответил: "+(e.message||e)+". Проверь, что функция ai-assess развёрнута и задан OPENAI_API_KEY.")}finally{btn.disabled=false;btn.textContent="✦ ИИ-помощник"}};
 function renderLines(){$("linesBody").innerHTML=lines.map((l,i)=>`<tr><td><input aria-label="Название работы" value="${esc(l.name)}" onchange="editLine(${i},'name',this.value)"></td><td><input type="number" min="0" step="1" value="${l.qty}" onchange="editLine(${i},'qty',this.value)"></td><td><input type="number" min="0" step="100" value="${l.price}" onchange="editLine(${i},'price',this.value)"></td><td>${money(Number(l.qty)*Number(l.price))}</td><td><button class="ghost" style="padding:5px 8px" onclick="removeLine(${i})">×</button></td></tr>`).join("");calcTotal()}
 window.editLine=(i,k,v)=>{lines[i][k]=k==="name"?v:Number(v)||0;renderLines()};
 window.removeLine=i=>{lines.splice(i,1);renderLines()};
@@ -157,19 +176,25 @@ $("addLine").onclick=()=>{lines.push({name:"Новая работа",qty:1,price
 function totalCalc(){let labor=lines.reduce((a,l)=>a+(Number(l.qty)||0)*(Number(l.price)||0),0);labor*=1+(Number($("marketAdj").value)||0)/100;return Math.max(0,Math.round(labor+(Number($("materials").value)||0)+(Number($("extras").value)||0)-(Number($("discount").value)||0)))}
 function calcTotal(){$("total").textContent=money(totalCalc());let raw=lines.reduce((a,l)=>a+(Number(l.qty)||0)*(Number(l.price)||0),0);$("estimateMeta").textContent=`Работы до корректировки: ${money(raw)} · Материалы и расходы учитываются отдельно.`}
 ["materials","extras","discount","marketAdj"].forEach(id=>$(id).addEventListener("input",calcTotal));
-$("saveJob").onclick=()=>{if(!$("car").value.trim()&&!$("client").value.trim()){toast("Укажи хотя бы автомобиль или клиента");showTab("details");return}let j={id:Date.now().toString(),date:new Date().toLocaleDateString("ru-RU"),client:$("client").value,phone:$("phone").value,car:$("car").value,year:$("year").value,vin:$("vin").value,status:$("status").value,notes:$("notes").value,element:$("element").value,damageType:$("damageType").value,lines:structuredClone(lines),materials:Number($("materials").value)||0,extras:Number($("extras").value)||0,discount:Number($("discount").value)||0,marketAdj:Number($("marketAdj").value)||0,total:totalCalc()};jobs.push(j);persist();renderDashboard();toast("Заказ сохранён в браузере");goto("jobs")};
+$("saveJob").onclick=async()=>{if(!$("car").value.trim()&&!$("client").value.trim()){toast("Укажи хотя бы автомобиль или клиента");showTab("details");return}let j={id:Date.now().toString(),createdAt:new Date().toISOString(),date:new Date().toLocaleDateString("ru-RU"),worker:$("worker").value,client:$("client").value,phone:$("phone").value,car:$("car").value,year:$("year").value,vin:$("vin").value,status:$("status").value,notes:$("notes").value,element:$("element").value,damageType:$("damageType").value,lines:structuredClone(lines),materials:Number($("materials").value)||0,extras:Number($("extras").value)||0,discount:Number($("discount").value)||0,marketAdj:Number($("marketAdj").value)||0,total:totalCalc()};try{await saveCloudJob(j);renderDashboard();renderJobs();toast("Заказ сохранён в общей базе");goto("jobs")}catch(e){toast("Не удалось сохранить: "+e.message)}};
 $("printQuote").onclick=()=>window.print();
 function renderPrices(){$("priceList").innerHTML=prices.map((p,i)=>`<div class="settings-row"><div style="flex:1"><input value="${esc(p.name)}" aria-label="Название работы" onchange="editPrice(${i},'name',this.value)"></div><div style="display:flex;align-items:center;gap:8px;width:190px"><input type="number" min="0" step="100" value="${p.price}" aria-label="Цена работы" onchange="editPrice(${i},'price',this.value)"><span class="muted small">₽</span></div><button class="ghost" onclick="removePrice(${i})">×</button></div>`).join("")+`<div class="actions"><button class="secondary" id="addPrice">＋ Добавить расценку</button></div>`;$("addPrice").onclick=()=>{prices.push({name:"Новая работа",price:0});renderPrices()}}
 window.editPrice=(i,k,v)=>{prices[i][k]=k==="name"?v:Number(v)||0};window.removePrice=i=>{prices.splice(i,1);renderPrices()};
 $("savePrices").onclick=()=>{persist();toast("Прайс сохранён");};
 $("resetPrices").onclick=()=>{if(confirm("Вернуть демонстрационный прайс?")){prices=structuredClone(defaultPrices);persist();renderPrices()}};
 function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
-function exportCSV(){let headers=["Дата","Клиент","Телефон","Автомобиль","Год","VIN/номер","Статус","Элемент","Повреждение","Сумма","Комментарий"];let rows=jobs.map(j=>[j.date,j.client,j.phone,j.car,j.year,j.vin,j.status,j.element,j.damageType,j.total,j.notes]);let csv="\ufeff"+[headers,...rows].map(r=>r.map(csvCell).join(";")).join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="kuzov-pro-orders.csv";a.click();URL.revokeObjectURL(a.href)}
+function exportCSV(){let headers=["Дата","Клиент","Телефон","Автомобиль","Год","VIN/номер","Статус","Работник","Элемент","Повреждение","Сумма","Комментарий"];let rows=jobs.map(j=>[j.date,j.client,j.phone,j.car,j.year,j.vin,j.status,j.worker,j.element,j.damageType,j.total,j.notes]);let csv="\ufeff"+[headers,...rows].map(r=>r.map(csvCell).join(";")).join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="kuzov-pro-orders.csv";a.click();URL.revokeObjectURL(a.href)}
 $("exportBtn").onclick=$("exportBtn2").onclick=exportCSV;
-$("saveSettings").onclick=()=>{settings={shopName:$("shopName").value,shopPhone:$("shopPhone").value,region:$("region").value,currency:$("currency").value};persist();toast("Настройки сохранены")};
+$("saveSettings").onclick=()=>{settings={...settings,shopName:$("shopName").value,shopPhone:$("shopPhone").value,region:$("region").value,currency:$("currency").value,workers:$("workersList").value.split(",").map(x=>x.trim()).filter(Boolean)};refreshWorkers();persist();toast("Настройки сохранены")};
 $("wipeData").onclick=()=>{if(confirm("Точно удалить все заказы, прайс и настройки из этого браузера?")){jobs=[];prices=structuredClone(defaultPrices);settings={shopName:"Моя мастерская",shopPhone:"",region:"",currency:"₽"};persist();renderDashboard();renderJobs();renderPrices();toast("Локальные данные очищены")}};
-function initSettings(){$("shopName").value=settings.shopName||"";$("shopPhone").value=settings.shopPhone||"";$("region").value=settings.region||"";$("currency").value=settings.currency||"₽"}
-initSettings();renderDashboard();renderLines();renderPrices();
+function initSettings(){$("shopName").value=settings.shopName||"";$("shopPhone").value=settings.shopPhone||"";$("region").value=settings.region||"";$("currency").value=settings.currency||"₽";$("workersList").value=(settings.workers||["Артём (владелец)","Работник 1","Работник 2"]).join(", ");refreshWorkers()}
+function refreshWorkers(){let names=(settings.workers||["Артём (владелец)","Работник 1","Работник 2"]);let old=$("worker").value;$("worker").innerHTML=names.map(n=>`<option>${esc(n)}</option>`).join("");if(names.includes(old))$("worker").value=old}
+async function enterApp(user){sessionUser={id:user.id,email:user.email,name:user.user_metadata?.name||user.email,role:user.app_metadata?.role||user.user_metadata?.role||"worker"};$("loginGate").style.display="none";$("mainApp").style.visibility="visible";$("currentUserBadge").textContent=sessionUser.name;document.querySelectorAll('[data-page="prices"],[data-page="settings"]').forEach(x=>x.style.display=sessionUser.role==="owner"?"":"none");try{await syncOrders();toast("Вход выполнен · база синхронизирована")}catch(e){toast("Ошибка загрузки заказов: "+e.message)}}
+$("loginBtn").onclick=async()=>{if(!sb){$("loginError").textContent="Не настроено подключение: вставь Project URL и publishable key в index.html.";return}const email=$("loginEmail").value.trim(),password=$("loginPassword").value;if(!email||!password){$("loginError").textContent="Введи email и пароль";return}const btn=$("loginBtn");btn.disabled=true;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;await enterApp(data.user)}catch(e){$("loginError").textContent="Не удалось войти: "+e.message}finally{btn.disabled=false}};
+$("logoutBtn").onclick=async()=>{if(sb)await sb.auth.signOut();sessionUser=null;$("loginPassword").value="";$("loginEmail").value="";$("loginGate").style.display="grid";$("mainApp").style.visibility="hidden"};
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+initSettings();renderLines();renderPrices();
+if(sb){sb.auth.getSession().then(async({data})=>{if(data.session)await enterApp(data.session.user)});sb.auth.onAuthStateChange((_event,session)=>{if(session&&!sessionUser)enterApp(session.user)})}
 window.addEventListener("beforeprint",()=>{document.body.dataset.printing="true"});
 </script>
 <style>
